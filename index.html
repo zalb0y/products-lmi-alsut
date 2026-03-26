@@ -85,9 +85,7 @@
             border-radius: 50%;
         }
         
-        .date-badge {
-            opacity: 0.9;
-        }
+        .date-badge { opacity: 0.9; }
         
         /* Compact Stats */
         .stats-row {
@@ -387,10 +385,7 @@
         .loading-text { color: var(--text-secondary); font-size: 0.85rem; }
         
         /* Empty & Error */
-        .empty-state, .error-state {
-            text-align: center;
-            padding: 40px 20px;
-        }
+        .empty-state, .error-state { text-align: center; padding: 40px 20px; }
         
         .empty-state svg { width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 12px; }
         .empty-state h3 { font-size: 0.95rem; margin-bottom: 4px; }
@@ -519,24 +514,41 @@
     <footer class="footer">© 2026 LOTTE MART ALAM SUTERA</footer>
     
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwY_fTmvUS442FS127UrQ0PKDIJyr8kIniNR5D66RiRHionYmDH06ok5EA5xb-pk9JHbg/exec';
+        // ============================================
+        // KONFIGURASI - GANTI DENGAN FILE_ID ANDA!
+        // ============================================
+        // Cara dapat FILE_ID:
+        // 1. Buka file data.json di Google Drive
+        // 2. Klik kanan > Get link
+        // 3. Link format: https://drive.google.com/file/d/FILE_ID_DISINI/view
+        // 4. Copy bagian FILE_ID_DISINI
         
+        const JSON_FILE_ID = '1vJBd9nCpaG7xUBfjMcO4SZjCH0AmITO6';
+        const JSON_URL = `https://drive.google.com/uc?export=download&id=${1vJBd9nCpaG7xUBfjMcO4SZjCH0AmITO6}`;
+        
+        // ============================================
+        // STATE
+        // ============================================
         let allProducts = [], filteredProducts = [];
         let categories = { first: [], second: [] };
         let meta = {}, currentStatus = 'all', currentSort = 'name';
         let hasLevel4 = false, hasLevel5 = false;
         
+        // ============================================
+        // INIT
+        // ============================================
         document.addEventListener('DOMContentLoaded', loadData);
         
         async function loadData() {
             showLoading();
             try {
-                const res = await fetch(API_URL);
+                const res = await fetch(JSON_URL);
                 const data = await res.json();
                 if (data.success) processData(data);
-                else showError(data.error || 'Unknown error');
+                else showError(data.error || 'Data tidak valid');
             } catch (e) {
-                showError('Tidak dapat terhubung. Refresh halaman.');
+                console.error(e);
+                showError('Tidak dapat memuat data. Pastikan file JSON sudah di-share sebagai public.');
             }
         }
         
@@ -674,8 +686,8 @@
                     <table class="price-tbl">
                         <thead><tr><th></th>${lvls.map(l => `<th>${l.n}</th>`).join('')}</tr></thead>
                         <tbody>
-                            <tr><td>Min Qty</td>${lvls.map(l => `<td>${l.d.min}</td>`).join('')}</tr>
-                            <tr><td>Max Qty</td>${lvls.map(l => `<td>${l.d.max}</td>`).join('')}</tr>
+                            <tr><td>Min</td>${lvls.map(l => `<td>${l.d.min}</td>`).join('')}</tr>
+                            <tr><td>Max</td>${lvls.map(l => `<td>${l.d.max}</td>`).join('')}</tr>
                             <tr><td>Harga</td>${lvls.map(l => `<td class="price">Rp${fmt(l.d.price)}</td>`).join('')}</tr>
                         </tbody>
                     </table>
