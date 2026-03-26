@@ -504,10 +504,10 @@
         // ============================================
         // KONFIGURASI - GANTI DENGAN URL ANDA!
         // ============================================
-        // Ini adalah URL deployment Google Apps Script
-        // Contoh: https://script.google.com/macros/s/AKfycb.../exec
-        
         const API_URL = 'https://script.google.com/macros/s/AKfycbwh5A513qZkxtMJZ6b_XNrOXcbPDbxC4mDZIUPodFtatqc55iyCnM2MFJ2epd3CTEuPIg/exec';
+        const CACHE_KEY = 'lottemart_data';
+        const CACHE_TIME_KEY = 'lottemart_data_time';
+        const CACHE_DURATION = 60 * 60 * 1000; // 1 jam
         
         // ============================================
         // STATE
@@ -523,16 +523,76 @@
         document.addEventListener('DOMContentLoaded', loadData);
         
         async function loadData() {
-            showLoading();
+            // 1. Cek cache - tampilkan langsung jika ada
+            const cached = getCache();
+            if (cached) {
+                console.log('📦 Loaded from cache');
+                processData(cached);
+                // Fetch data baru di background
+                fetchFreshData(true);
+            } else {
+                showLoading();
+                fetchFreshData(false);
+            }
+        }
+        
+        async function fetchFreshData(isBackground) {
             try {
                 const res = await fetch(API_URL);
                 const data = await res.json();
-                if (data.success) processData(data);
-                else showError(data.error || 'Data tidak valid');
+                
+                if (data.success) {
+                    setCache(data);
+                    
+                    if (isBackground) {
+                        const oldMeta = meta;
+                        if (data.meta.reportDate !== oldMeta.reportDate || 
+                            data.meta.totalProducts !== oldMeta.totalProducts) {
+                            console.log('🔄 New data detected');
+                            processData(data);
+                            showUpdateNotice();
+                        }
+                    } else {
+                        processData(data);
+                    }
+                } else if (!isBackground) {
+                    showError(data.error || 'Data tidak valid');
+                }
             } catch (e) {
                 console.error(e);
-                showError('Tidak dapat memuat data. Cek koneksi internet.');
+                if (!isBackground) {
+                    showError('Tidak dapat memuat data. Cek koneksi internet.');
+                }
             }
+        }
+        
+        function getCache() {
+            try {
+                const data = localStorage.getItem(CACHE_KEY);
+                const time = localStorage.getItem(CACHE_TIME_KEY);
+                if (data && time) {
+                    const age = Date.now() - parseInt(time);
+                    if (age < CACHE_DURATION) {
+                        return JSON.parse(data);
+                    }
+                }
+            } catch (e) {}
+            return null;
+        }
+        
+        function setCache(data) {
+            try {
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+            } catch (e) {}
+        }
+        
+        function showUpdateNotice() {
+            const notice = document.createElement('div');
+            notice.innerHTML = '✓ Data diperbarui';
+            notice.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#00A651;color:white;padding:8px 16px;border-radius:20px;font-size:12px;z-index:999;';
+            document.body.appendChild(notice);
+            setTimeout(() => notice.remove(), 2000);
         }
         
         function processData(data) {
