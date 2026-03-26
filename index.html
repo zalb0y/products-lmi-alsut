@@ -685,13 +685,31 @@
             const stockCls = p.stockQty <= 0 ? 'stock-out' : p.stockQty < 10 ? 'stock-low' : '';
             const stockTxt = p.stockQty <= 0 ? 'Habis' : fmt(p.stockQty);
             
-            const lvls = [
-                { n: 'Lv1', d: p.levels.level1 },
-                { n: 'Lv2', d: p.levels.level2 },
-                { n: 'Lv3', d: p.levels.level3 }
-            ];
-            if (hasLevel4) lvls.push({ n: 'Lv4', d: p.levels.level4 });
-            if (hasLevel5) lvls.push({ n: 'Lv5', d: p.levels.level5 });
+            // BBLM price table - only for BBLM products
+            let priceTableHtml = '';
+            if (p.isBBLM) {
+                const lvls = [
+                    { n: 'Lv1', d: p.levels.level1 },
+                    { n: 'Lv2', d: p.levels.level2 },
+                    { n: 'Lv3', d: p.levels.level3 }
+                ];
+                if (hasLevel4) lvls.push({ n: 'Lv4', d: p.levels.level4 });
+                if (hasLevel5) lvls.push({ n: 'Lv5', d: p.levels.level5 });
+                
+                priceTableHtml = `
+                <div class="price-wrap">
+                    <table class="price-tbl">
+                        <thead>
+                            <tr><th>BBLM</th>${lvls.map(l => `<th>${l.n}</th>`).join('')}</tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Min</td>${lvls.map(l => `<td>${l.d.min}</td>`).join('')}</tr>
+                            <tr><td>Max</td>${lvls.map(l => `<td>${l.d.max}</td>`).join('')}</tr>
+                            <tr><td>Harga</td>${lvls.map(l => `<td class="price">Rp${fmt(l.d.price)}</td>`).join('')}</tr>
+                        </tbody>
+                    </table>
+                </div>`;
+            }
             
             return `<div class="product-card">
                 <div class="card-header">
@@ -718,18 +736,7 @@
                     ${p.category.first ? `<span class="cat-tag">${esc(p.category.first)}</span>` : ''}
                     ${p.category.second ? `<span class="cat-tag">${esc(p.category.second)}</span>` : ''}
                 </div>
-                <div class="price-wrap">
-                    <table class="price-tbl">
-                        <thead>
-                            <tr><th>BBLM</th>${lvls.map(l => `<th>${l.n}</th>`).join('')}</tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>Min</td>${lvls.map(l => `<td>${l.d.min}</td>`).join('')}</tr>
-                            <tr><td>Max</td>${lvls.map(l => `<td>${l.d.max}</td>`).join('')}</tr>
-                            <tr><td>Harga</td>${lvls.map(l => `<td class="price">Rp${fmt(l.d.price)}</td>`).join('')}</tr>
-                        </tbody>
-                    </table>
-                </div>
+                ${priceTableHtml}
             </div>`;
         }
         
