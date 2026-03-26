@@ -720,7 +720,9 @@
                 </div>
                 <div class="price-wrap">
                     <table class="price-tbl">
-                        <thead><tr><th></th>${lvls.map(l => `<th>${l.n}</th>`).join('')}</tr></thead>
+                        <thead>
+                            <tr><th>BBLM</th>${lvls.map(l => `<th>${l.n}</th>`).join('')}</tr>
+                        </thead>
                         <tbody>
                             <tr><td>Min</td>${lvls.map(l => `<td>${l.d.min}</td>`).join('')}</tr>
                             <tr><td>Max</td>${lvls.map(l => `<td>${l.d.max}</td>`).join('')}</tr>
