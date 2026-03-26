@@ -37,7 +37,6 @@
             font-size: 14px;
         }
         
-        /* Compact Header */
         .header {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             color: white;
@@ -87,7 +86,6 @@
         
         .date-badge { opacity: 0.9; }
         
-        /* Compact Stats */
         .stats-row {
             display: flex;
             gap: 6px;
@@ -115,7 +113,6 @@
             letter-spacing: 0.3px;
         }
         
-        /* Compact Filter */
         .filter-bar {
             background: var(--bg-card);
             padding: 8px 12px;
@@ -229,7 +226,6 @@
             margin: 0 4px;
         }
         
-        /* Main Content */
         .main { padding: 8px; max-width: 1200px; margin: 0 auto; }
         
         .results-info {
@@ -241,7 +237,6 @@
         
         .results-info strong { color: var(--text-primary); }
         
-        /* Product List */
         .product-list { display: flex; flex-direction: column; gap: 8px; }
         
         .product-card {
@@ -316,7 +311,6 @@
             color: var(--text-secondary);
         }
         
-        /* Price Table */
         .price-wrap {
             overflow-x: auto;
             border-top: 1px solid var(--border);
@@ -362,7 +356,6 @@
             color: var(--primary);
         }
         
-        /* Loading */
         .loading {
             display: flex;
             flex-direction: column;
@@ -384,7 +377,6 @@
         
         .loading-text { color: var(--text-secondary); font-size: 0.85rem; }
         
-        /* Empty & Error */
         .empty-state, .error-state { text-align: center; padding: 40px 20px; }
         
         .empty-state svg { width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 12px; }
@@ -412,7 +404,6 @@
             cursor: pointer;
         }
         
-        /* Footer */
         .footer {
             text-align: center;
             padding: 16px;
@@ -420,7 +411,6 @@
             font-size: 0.65rem;
         }
         
-        /* Desktop */
         @media (min-width: 768px) {
             .header { padding: 12px 20px; }
             .store-name { font-size: 1.1rem; }
@@ -435,7 +425,6 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header class="header">
         <div class="header-top">
             <h1 class="store-name">🛒 LOTTE MART ALAM SUTERA</h1>
@@ -460,7 +449,6 @@
         </div>
     </header>
     
-    <!-- Filter -->
     <section class="filter-bar">
         <div class="search-box">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -498,7 +486,6 @@
         </div>
     </section>
     
-    <!-- Main -->
     <main class="main">
         <div class="results-info" id="resultsInfo" style="display:none;">
             Menampilkan <strong id="filteredCount">0</strong> dari <strong id="totalCount">0</strong> produk
@@ -515,16 +502,12 @@
     
     <script>
         // ============================================
-        // KONFIGURASI - GANTI DENGAN FILE_ID ANDA!
+        // KONFIGURASI - GANTI DENGAN URL ANDA!
         // ============================================
-        // Cara dapat FILE_ID:
-        // 1. Buka file data.json di Google Drive
-        // 2. Klik kanan > Get link
-        // 3. Link format: https://drive.google.com/file/d/FILE_ID_DISINI/view
-        // 4. Copy bagian FILE_ID_DISINI
+        // Ini adalah URL deployment Google Apps Script
+        // Contoh: https://script.google.com/macros/s/AKfycb.../exec
         
-        const JSON_FILE_ID = '1Rx_t7EzC3t9nuBYhvsIiwalIR6y_7bn6';
-        const JSON_URL = `https://drive.google.com/uc?export=download&id=${JSON_FILE_ID}`;
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwh5A513qZkxtMJZ6b_XNrOXcbPDbxC4mDZIUPodFtatqc55iyCnM2MFJ2epd3CTEuPIg/exec';
         
         // ============================================
         // STATE
@@ -542,13 +525,13 @@
         async function loadData() {
             showLoading();
             try {
-                const res = await fetch(JSON_URL);
+                const res = await fetch(API_URL);
                 const data = await res.json();
                 if (data.success) processData(data);
                 else showError(data.error || 'Data tidak valid');
             } catch (e) {
                 console.error(e);
-                showError('Tidak dapat memuat data. Pastikan file JSON sudah di-share sebagai public.');
+                showError('Tidak dapat memuat data. Cek koneksi internet.');
             }
         }
         
