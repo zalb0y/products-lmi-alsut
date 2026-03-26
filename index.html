@@ -674,8 +674,8 @@
                     <table class="price-tbl">
                         <thead><tr><th></th>${lvls.map(l => `<th>${l.n}</th>`).join('')}</tr></thead>
                         <tbody>
-                            <tr><td>Min</td>${lvls.map(l => `<td>${l.d.min}</td>`).join('')}</tr>
-                            <tr><td>Max</td>${lvls.map(l => `<td>${l.d.max}</td>`).join('')}</tr>
+                            <tr><td>Min Qty</td>${lvls.map(l => `<td>${l.d.min}</td>`).join('')}</tr>
+                            <tr><td>Max Qty</td>${lvls.map(l => `<td>${l.d.max}</td>`).join('')}</tr>
                             <tr><td>Harga</td>${lvls.map(l => `<td class="price">Rp${fmt(l.d.price)}</td>`).join('')}</tr>
                         </tbody>
                     </table>
