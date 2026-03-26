@@ -466,7 +466,7 @@
             <div class="divider"></div>
             <div class="filter-group">
                 <span class="filter-label">Cat</span>
-                <select class="cat-select" id="catFirst" onchange="filterProducts()">
+                <select class="cat-select" id="catFirst" onchange="onCategoryFirstChange()">
                     <option value="">All</option>
                 </select>
                 <select class="cat-select" id="catSecond" onchange="filterProducts()">
@@ -502,11 +502,8 @@
     
     <script>
         // ============================================
-        // KONFIGURASI - GANTI DENGAN URL ANDA!
+        // KONFIGURASI
         // ============================================
-        // Ini adalah URL deployment Google Apps Script
-        // Contoh: https://script.google.com/macros/s/AKfycb.../exec
-        
         const API_URL = 'https://script.google.com/macros/s/AKfycbwh5A513qZkxtMJZ6b_XNrOXcbPDbxC4mDZIUPodFtatqc55iyCnM2MFJ2epd3CTEuPIg/exec';
         
         // ============================================
@@ -514,6 +511,7 @@
         // ============================================
         let allProducts = [], filteredProducts = [];
         let categories = { first: [], second: [] };
+        let categoryMapping = {}; // Menyimpan relasi category first -> second
         let meta = {}, currentStatus = 'all', currentSort = 'name';
         let hasLevel4 = false, hasLevel5 = false;
         
@@ -542,6 +540,9 @@
             hasLevel4 = meta.hasLevel4MinMax || false;
             hasLevel5 = meta.hasLevel5MinMax || false;
             
+            // Build category mapping (first -> [second categories])
+            buildCategoryMapping();
+            
             if (meta.memberType) {
                 document.getElementById('memberType').textContent = meta.memberType.replace(/^\d+-/, '').trim();
             }
@@ -554,17 +555,69 @@
             document.getElementById('bblmCount').textContent = fmt(bblm);
             document.getElementById('normalCount').textContent = fmt(allProducts.length - bblm);
             
-            populateCategories();
+            populateCategoryFirst();
             filterProducts();
         }
         
-        function populateCategories() {
+        // Build mapping: category first -> array of category second
+        function buildCategoryMapping() {
+            categoryMapping = {};
+            allProducts.forEach(p => {
+                const first = p.category.first;
+                const second = p.category.second;
+                if (first) {
+                    if (!categoryMapping[first]) {
+                        categoryMapping[first] = new Set();
+                    }
+                    if (second) {
+                        categoryMapping[first].add(second);
+                    }
+                }
+            });
+            // Convert Set to sorted Array
+            for (let key in categoryMapping) {
+                categoryMapping[key] = Array.from(categoryMapping[key]).sort();
+            }
+        }
+        
+        // Populate category first dropdown
+        function populateCategoryFirst() {
             const s1 = document.getElementById('catFirst');
-            const s2 = document.getElementById('catSecond');
             s1.innerHTML = '<option value="">All</option>';
+            (categories.first || []).forEach(c => {
+                s1.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+            // Reset and populate category second with all options
+            populateCategorySecond('');
+        }
+        
+        // Populate category second based on selected category first
+        function populateCategorySecond(selectedFirst) {
+            const s2 = document.getElementById('catSecond');
             s2.innerHTML = '<option value="">All 2nd</option>';
-            (categories.first || []).forEach(c => s1.innerHTML += `<option value="${c}">${c}</option>`);
-            (categories.second || []).forEach(c => s2.innerHTML += `<option value="${c}">${c}</option>`);
+            
+            if (selectedFirst && categoryMapping[selectedFirst]) {
+                // Show only related second categories
+                categoryMapping[selectedFirst].forEach(c => {
+                    s2.innerHTML += `<option value="${c}">${c}</option>`;
+                });
+            } else {
+                // Show all second categories
+                (categories.second || []).forEach(c => {
+                    s2.innerHTML += `<option value="${c}">${c}</option>`;
+                });
+            }
+        }
+        
+        // Called when category first changes
+        function onCategoryFirstChange() {
+            const selectedFirst = document.getElementById('catFirst').value;
+            // Reset category second selection
+            document.getElementById('catSecond').value = '';
+            // Update category second options based on first
+            populateCategorySecond(selectedFirst);
+            // Apply filter
+            filterProducts();
         }
         
         function setStatus(s, el) {
